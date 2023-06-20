@@ -1,0 +1,129 @@
+body {
+    background-color: #fafafa;
+    color: black;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    max-width: 1200px;
+    min-height: 90vh;
+    border: 1px solid #800000;
+    padding: 20px;
+    background-color: white;
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+}
+
+.logo {
+    display: block;
+    max-width: 10%;
+    height: auto;
+    margin: 0 auto 20px;
+}
+
+.chatbox {
+    flex-grow: 1;
+    width: 100%;
+    max-height: 320px;
+    border: 1px solid #800000;
+    padding: 20px;
+    margin: 10px 0;
+    overflow-y: auto;
+    background-color: #f5f5f5;
+    border-radius: 10px;
+    word-wrap: break-word;
+}
+
+
+.chatform {
+    display: flex;
+    width: 100%;
+}
+
+#input {
+    flex-grow: 1;
+    margin-right: 10px;
+    border-radius: 10px;
+    padding: 10px;
+    border: 1px solid #800000;
+}
+
+.submit-button {
+    background-color: #800000;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 10px;
+    font-size: 18px;
+}
+
+.submit-button:hover {
+    background-color: #b22222;
+}
+
+b {
+    color: #800000;
+}
+
+p {
+    line-height: 1.6;
+}
+
+#user {
+    color: #800000;
+}
+
+#assistant {
+    color: #000;
+}
+
+.button {
+    background-color: #800000;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 10px;
+    font-size: 18px;
+}
+
+.submit-button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.footer {
+    /* Add some styling for the copyright statement */
+    font-size: 12px;
+    padding: 10px;
+    text-align: center;
+    background-color: #f4f4f4;
+}
+
+@media (max-width: 600px) {
+    .container {
+        width: 100%;
+        padding: 10px;
+    }
+    .chatbox {
+        max-height: 200px;
+    }
+    #input {
+        padding: 5px;
+    }
+    .submit-button, .button {
+        padding: 5px 10px;
+        font-size: 14px;
+    }
+}

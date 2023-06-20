@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>demo</title>
+  <link rel="stylesheet" type="text/css" href="../css/style.css">
+  <!-- 加入 MathJax 3 的 CDN 路径，解决latex公式问题 -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+</head>
+<body>
+<div class="container">
+  <h3 style="display: inline-block;">demo</h3>
+  <h5 >(tips:由于网络问题，回复时长正比于问题复杂程度，请耐心等待)</h5>
+  <div id="chatbox" class="chatbox">
+    <!-- This is where the chat history will be displayed -->
+  </div>
+
+  <form id="chatform" class="chatform" onsubmit="event.preventDefault();">
+    <textarea id="input" autocomplete="off" placeholder="请输入您的问题...（支持 Shift + Enter 换行）" autofocus="false"></textarea>
+    <button type="submit" class="submit-button">发送</button>
+  </form>
+
+
+</div>
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.1/highlight.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.1/styles/default.min.css">
+<script>
+  hljs.highlightAll();
+  $(document).ready(function(){
+
+    document.getElementById('input').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        // Manually trigger the form submission event
+        $('#chatform').trigger('submit');
+      }
+    });
+
+    var messages = [{
+      'role': 'assistant',
+      'content':'你是一个专业的助理'}]//content的内容是你的提示词，你可以设置它的角色。
+    function appendMessage(sender, text) {
+      var isCode = false;
+      var isLatexInline = false;
+      var isLatexBlock = false;
+      if (text.includes("```")) {
+        isCode = true;
+        text = text.split("```")[1];  // get the content inside ```
+      }
+      if (text.includes("$") && !text.includes("$$")) {  // 检查是否包含行内 LaTeX 公式
+        isLatexInline = true;
+      }
+      if (text.includes("$$")) {  // 检查是否包含块级 LaTeX 公式
+        isLatexBlock = true;
+      }
+      text = text.replace(/\n/g, '<br>');
+      if (sender === "ai" && isCode) {  // 如果这是AI发送的，且包含代码
+        text = `<pre><code>${text}</code></pre>`;  // 将文本放入<pre><code>标签中
+      }
+      if (isLatexInline) {  // 如果包含行内 LaTeX 公式
+        text = `<p>${text}</p>`;  // 将文本放入<p>标签中，MathJax 会处理其中的 LaTeX 公式
+      }
+      if (isLatexBlock) {  // 如果包含块级 LaTeX 公式
+        text = `<p>${text}</p>`;  // 将文本放入<p>标签中，MathJax 会处理其中的 LaTeX 公式
+      }
+      $('#chatbox').append(`<p><b>${sender}:</b> ${text}</p>`);
+      $('#chatbox').scrollTop($('#chatbox')[0].scrollHeight);
+      $('pre code').each(function(i, block) {
+        hljs.highlightBlock(block);  // 对所有<pre><code>标签中的代码进行高亮
+      });
+
+      if (isLatexInline || isLatexBlock) {  // 如果包含 LaTeX 公式
+        MathJax.typesetPromise();  // 触发 MathJax 重新渲染页面中的 LaTeX 公式
+      }
+    }
+
+
+    $('#chatform').on('submit', function(e){
+      let userText = $('#input').val();
+      appendMessage('我', userText);
+      $(".submit-button").prop("disabled", true);  // 禁用提交按钮
+      messages.push({'role': 'user', 'content': userText});
+
+      $.ajax({
+        url:  'https://openai.1rmb.tk/v1/chat/completions',//这个url可以让你不用vpn调用接口
+        type: 'POST',
+        headers: {
+          'Authorization': 'Bearer APIKEY',//记得把apikey换成你自己的
+          'Content-Type': 'application/json'
+        },
+        data: JSON.stringify({
+          'model': 'gpt-3.5-turbo',
+          'messages': messages,
+          'max_tokens': 350,//这个越小回复越快
+          'temperature': 0.5
+        }),
+        success: function(data){
+          let aiText = data['choices'][0]['message']['content'].trim();
+
+          appendMessage('ai', aiText);
+          messages.push({'role': 'assistant', 'content': aiText});
+          $(".submit-button").prop("disabled", false);  // 启用提交按钮
+        },
+        error: function(jqXHR, textStatus, errorThrown){ 
+          console.log("Error:", jqXHR.responseText);
+          alert('调用API出错');
+        }
+      });
+
+      $('#input').val('');
+    });
+
+    appendMessage('ai', '您好，请问您有什么问题想要咨询吗？');//设置你的欢迎语
+    MathJax.typesetPromise();  // 触发 MathJax 重新渲染页面中的 LaTeX 公式
+
+  });
+
+
+
+</script>
+</body>
+</html>
